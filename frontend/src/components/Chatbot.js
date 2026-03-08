@@ -29,7 +29,7 @@ function Chatbot({ onExpenseChange }) {
     try {
       const token = localStorage.getItem('token');
       const { data } = await axios.post(
-        'http://localhost:5000/api/chat',
+        'https://expense-tracker-backend-q1ne.onrender.com/api/chat',
         { message: userMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
