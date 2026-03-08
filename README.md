@@ -654,18 +654,4 @@ With more time, I would add:
    - Export CSV
    - Budget tracking
 
-## 📞 Contact
 
-**Name:** [Your Name]
-**Department:** [Your Department]
-**College:** Sri Ramakrishna Engineering College
-**Mobile:** [Your Mobile]
-**Email:** [Your Email]
-
-## 📄 License
-
-MIT License - Free to use and modify
-
----
-
-**Built with ❤️ for Nebula KnowLab Campus Drive**
