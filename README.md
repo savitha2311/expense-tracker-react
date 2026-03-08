@@ -1,6 +1,13 @@
 # AI-Powered Expense Tracker with Analytics
 
-**Live Demo:** [Add your deployed URL here]
+## 🌐 Live Demo
+
+- **Frontend:** https://superlative-tanuki-0c32f4.netlify.app
+- **Backend API:** https://expense-tracker-backend-q1ne.onrender.com
+
+**Note:** First load may take 30-60 seconds as the free backend wakes up.
+
+---
 
 A full-stack expense tracking application with an integrated AI chatbot that manages finances through natural language conversation. The chatbot performs CRUD operations, analyzes spending patterns, and provides personalized financial insights.
 
@@ -199,7 +206,160 @@ All chatbot commands execute actual SQL queries:
 - Handles complex variations
 - Requires API key (~$0.001/message)
 
-## 📊 Features Demo
+## 🎬 Demo & Screenshots
+
+### Live Demo
+**Try it yourself:** https://superlative-tanuki-0c32f4.netlify.app
+
+### Chatbot in Action
+
+**Screenshot 1: Dashboard Overview**
+- Main dashboard with expense statistics
+- Category breakdown pie chart
+- Recent transactions table
+- Floating chatbot icon (bottom right)
+
+**Screenshot 2: Chatbot - Adding Expense**
+```
+User: "I spent $50 on groceries at Whole Foods"
+Bot: "Added $50 for Groceries at Whole Foods on 2024-03-09"
+```
+- Natural language input
+- Automatic categorization
+- Merchant extraction
+- Instant dashboard update
+
+**Screenshot 3: Chatbot - Querying Expenses**
+```
+User: "How much did I spend on food this month?"
+Bot: "You spent $342 on food this month: $180 on Groceries, $120 on Food, $42 on Coffee"
+```
+- Category-based queries
+- Detailed breakdown
+- Time-based filtering
+
+**Screenshot 4: Budget Management**
+- Visual progress bars
+- Color-coded alerts (green/yellow/red)
+- Percentage tracking
+- Over-budget warnings
+
+**Screenshot 5: Analytics Dashboard**
+- Multiple chart types (pie, bar)
+- Month-over-month comparison
+- Top merchants analysis
+- Category breakdown table
+
+### Video Demo (Recommended)
+
+For a complete walkthrough, record a 2-3 minute video showing:
+1. Sign up / Login
+2. Adding expenses via chatbot
+3. Querying spending patterns
+4. Updating/deleting expenses
+5. Budget tracking
+6. Analytics visualization
+7. CSV export
+
+### Test the Chatbot
+
+Try these commands on the live demo:
+
+**CREATE:**
+- "I spent $45 on groceries"
+- "Add coffee $5.50 and lunch $18"
+- "Paid $120 for electricity bill yesterday"
+
+**READ:**
+- "How much did I spend this month?"
+- "Show my biggest expenses"
+- "What did I spend on transport?"
+
+**UPDATE:**
+- "Change the last expense to $55"
+- "Update category to Food"
+
+**DELETE:**
+- "Delete the last expense"
+
+**INSIGHTS:**
+- "Give me spending insights"
+- "Am I on track with my budget?"
+- "Compare this month vs last month"
+
+## 🔑 Environment Variables
+
+### Required Variables
+
+**Backend (.env):**
+```env
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# Database (Local Development - MySQL)
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=expense_tracker_react
+DB_PORT=3306
+
+# Database (Production - PostgreSQL)
+DATABASE_URL=postgresql://user:password@host:port/database
+
+# Authentication
+JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
+
+# AI Integration (Optional)
+OPENAI_API_KEY=sk-your-openai-api-key-here
+```
+
+**Frontend:**
+```javascript
+// frontend/src/services/api.js
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+```
+
+### How to Get API Keys
+
+**OpenAI API Key (Optional):**
+1. Go to https://platform.openai.com
+2. Sign up / Login
+3. Go to API Keys section
+4. Create new secret key
+5. Copy and paste in .env
+6. Note: Costs ~$0.001 per message
+7. **Not required** - app works with rule-based NLP by default
+
+**JWT Secret:**
+- Generate a random string (32+ characters)
+- Use: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+- Or any random string generator
+
+### Environment Setup
+
+**Local Development:**
+```bash
+# Backend
+cd backend
+cp .env.example .env  # Create from example
+nano .env             # Edit with your values
+
+# Frontend (if needed)
+cd frontend
+cp .env.example .env
+```
+
+**Production (Render):**
+- Set via Render Dashboard → Environment tab
+- Never commit .env files to Git
+- Use Render's environment variable UI
+
+**Production (Netlify):**
+- Set via Netlify Dashboard → Site settings → Environment variables
+- Or use netlify.toml for build-time variables
+
+## 🔑 Environment Variables
 
 ### Chatbot Examples
 
@@ -278,37 +438,158 @@ Bot: "Food: ⚠️ Over ($520/$500 - 104%), Transport: ✅ Good ($180/$300 - 60%
 
 **Total: 100% + 5 bonus points**
 
-## 🚀 Deployment
+## 🚀 Deployment Instructions
 
-### Recommended Platforms
+### Actual Deployment (What Was Done)
 
-**Backend:**
-- Railway (recommended)
-- Render
-- Heroku
+This project is deployed using:
+- **Backend:** Render (Free tier)
+- **Frontend:** Netlify (Free tier)
+- **Database:** PostgreSQL on Render (Free tier)
+
+### Step-by-Step Deployment Process
+
+#### 1. Backend Deployment (Render)
+
+**Prerequisites:**
+- GitHub account with code pushed
+- Render account (sign up with GitHub)
+
+**Steps:**
+
+1. **Create PostgreSQL Database:**
+   ```
+   - Go to Render Dashboard
+   - Click "New +" → "PostgreSQL"
+   - Name: expense-tracker-db
+   - Database: expense_tracker_react
+   - Plan: Free
+   - Click "Create Database"
+   - Copy "Internal Database URL"
+   ```
+
+2. **Deploy Backend Service:**
+   ```
+   - Click "New +" → "Web Service"
+   - Connect GitHub repository
+   - Configure:
+     * Name: expense-tracker-backend
+     * Root Directory: backend
+     * Build Command: npm install
+     * Start Command: node server-postgres.js
+     * Plan: Free
+   ```
+
+3. **Set Environment Variables:**
+   ```env
+   DATABASE_URL=postgresql://expense_tracker_react_user:...
+   JWT_SECRET=expense_jwt_secret_key_12345
+   OPENAI_API_KEY=your_openai_api_key_here
+   NODE_ENV=production
+   ```
+
+4. **Deploy:**
+   - Click "Create Web Service"
+   - Wait 5-7 minutes for deployment
+   - Copy backend URL: https://expense-tracker-backend-q1ne.onrender.com
+
+#### 2. Frontend Deployment (Netlify)
+
+**Steps:**
+
+1. **Update API URL:**
+   ```javascript
+   // frontend/src/services/api.js
+   const API_URL = 'https://expense-tracker-backend-q1ne.onrender.com/api';
+   ```
+
+2. **Push Changes:**
+   ```bash
+   git add .
+   git commit -m "Update API URL for production"
+   git push
+   ```
+
+3. **Deploy to Netlify:**
+   ```
+   - Go to Netlify Dashboard
+   - Click "Add new site" → "Import from Git"
+   - Connect GitHub repository
+   - Configure:
+     * Base directory: frontend
+     * Build command: npm run build
+     * Publish directory: frontend/build
+   - Click "Deploy"
+   ```
+
+4. **Live URL:**
+   - https://superlative-tanuki-0c32f4.netlify.app
+
+### Deployment Configuration Files
+
+**Backend (server-postgres.js):**
+- Uses PostgreSQL instead of MySQL for production
+- Automatic database initialization on startup
+- Environment-based configuration
 
 **Frontend:**
-- Netlify (recommended)
-- Vercel
-- GitHub Pages
+- Production build optimized with React Scripts
+- API URL points to Render backend
+- Static files served by Netlify CDN
 
-**Database:**
-- Railway MySQL
-- PlanetScale
-- AWS RDS
+### Key Deployment Decisions
 
-### Deployment Steps
+**Why Render for Backend?**
+- Free PostgreSQL database included
+- Automatic HTTPS
+- Easy GitHub integration
+- Auto-deploys on git push
 
-1. **Backend (Railway):**
-   - Connect GitHub repo
-   - Add MySQL database
-   - Set environment variables
-   - Deploy
+**Why Netlify for Frontend?**
+- Unlimited bandwidth (free)
+- Global CDN
+- Instant cache invalidation
+- No sleep time (unlike backend)
 
-2. **Frontend (Netlify):**
-   - Build: `npm run build`
-   - Deploy build folder
-   - Update API URL in code
+**Why PostgreSQL in Production?**
+- Render provides free PostgreSQL
+- More scalable than MySQL free tiers
+- Better for cloud deployments
+- Note: MySQL still works for local development
+
+### Free Tier Limitations
+
+**Render Backend:**
+- Sleeps after 15 minutes of inactivity
+- First request takes 30-60 seconds to wake up
+- 750 hours/month (sufficient for demo)
+
+**Netlify Frontend:**
+- No sleep time
+- Always fast
+- 100GB bandwidth/month
+
+### Monitoring & Logs
+
+**Backend Logs (Render):**
+```
+Dashboard → Service → Logs tab
+```
+
+**Frontend Logs (Netlify):**
+```
+Dashboard → Site → Deploys → Build logs
+```
+
+### Continuous Deployment
+
+Both platforms auto-deploy on git push:
+```bash
+git add .
+git commit -m "Update feature"
+git push
+# Render and Netlify automatically rebuild and deploy
+```
 
 ## 🔮 Future Improvements
 
