@@ -9,13 +9,69 @@ function Chatbot({ onExpenseChange }) {
   const [input, setInput] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  // Initialize Speech Recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(scrollToBottom, [messages]);
+
+  // Text to Speech
+  const speak = (text) => {
+    if (voiceEnabled && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // Cancel any ongoing speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Start Voice Recognition
+  const startListening = () => {
+    if (recognitionRef.current && !isListening) {
+      setIsListening(true);
+      recognitionRef.current.start();
+    }
+  };
+
+  // Stop Voice Recognition
+  const stopListening = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+  };
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -37,12 +93,17 @@ function Chatbot({ onExpenseChange }) {
       setIsTyping(false);
       setMessages(prev => [...prev, { type: 'bot', text: data.response }]);
       
+      // Speak the response
+      speak(data.response);
+      
       if (data.data && onExpenseChange) {
         onExpenseChange();
       }
     } catch (err) {
       setIsTyping(false);
-      setMessages(prev => [...prev, { type: 'bot', text: 'Sorry, I encountered an error. Please try again.' }]);
+      const errorMsg = 'Sorry, I encountered an error. Please try again.';
+      setMessages(prev => [...prev, { type: 'bot', text: errorMsg }]);
+      speak(errorMsg);
     }
   };
 
@@ -52,6 +113,17 @@ function Chatbot({ onExpenseChange }) {
     "Give me insights",
     "Am I on track with my budget?"
   ];
+
+  const handleQuickAction = (action) => {
+    setInput(action);
+    // Auto-submit after setting input
+    setTimeout(() => {
+      const form = document.querySelector('.chat-input');
+      if (form) {
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
+    }, 100);
+  };
 
   return (
     <>
@@ -63,6 +135,13 @@ function Chatbot({ onExpenseChange }) {
         <div className="chatbot">
           <div className="chat-header">
             <h3>🤖 AI Assistant</h3>
+            <button 
+              className="voice-toggle"
+              onClick={() => setVoiceEnabled(!voiceEnabled)}
+              title={voiceEnabled ? 'Voice ON' : 'Voice OFF'}
+            >
+              {voiceEnabled ? '🔊' : '🔇'}
+            </button>
           </div>
 
           <div className="chat-messages">
@@ -83,7 +162,7 @@ function Chatbot({ onExpenseChange }) {
 
           <div className="quick-actions">
             {quickActions.map((action, i) => (
-              <button key={i} onClick={() => setInput(action)} className="quick-btn">
+              <button key={i} onClick={() => handleQuickAction(action)} className="quick-btn">
                 {action}
               </button>
             ))}
@@ -94,8 +173,16 @@ function Chatbot({ onExpenseChange }) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message..."
+              placeholder="Type or speak..."
             />
+            <button 
+              type="button" 
+              className={`voice-btn ${isListening ? 'listening' : ''}`}
+              onClick={isListening ? stopListening : startListening}
+              title={isListening ? 'Stop listening' : 'Start voice input'}
+            >
+              {isListening ? '⏹️' : '🎤'}
+            </button>
             <button type="submit">Send</button>
           </form>
         </div>
