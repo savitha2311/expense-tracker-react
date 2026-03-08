@@ -10,7 +10,6 @@ function Chatbot({ onExpenseChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
 
@@ -44,18 +43,6 @@ function Chatbot({ onExpenseChange }) {
   };
 
   useEffect(scrollToBottom, [messages]);
-
-  // Text to Speech
-  const speak = (text) => {
-    if (voiceEnabled && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel(); // Cancel any ongoing speech
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
 
   // Start Voice Recognition
   const startListening = () => {
@@ -93,9 +80,6 @@ function Chatbot({ onExpenseChange }) {
       setIsTyping(false);
       setMessages(prev => [...prev, { type: 'bot', text: data.response }]);
       
-      // Speak the response
-      speak(data.response);
-      
       if (data.data && onExpenseChange) {
         onExpenseChange();
       }
@@ -103,7 +87,6 @@ function Chatbot({ onExpenseChange }) {
       setIsTyping(false);
       const errorMsg = 'Sorry, I encountered an error. Please try again.';
       setMessages(prev => [...prev, { type: 'bot', text: errorMsg }]);
-      speak(errorMsg);
     }
   };
 
@@ -135,13 +118,6 @@ function Chatbot({ onExpenseChange }) {
         <div className="chatbot">
           <div className="chat-header">
             <h3>🤖 AI Assistant</h3>
-            <button 
-              className="voice-toggle"
-              onClick={() => setVoiceEnabled(!voiceEnabled)}
-              title={voiceEnabled ? 'Voice ON' : 'Voice OFF'}
-            >
-              {voiceEnabled ? '🔊' : '🔇'}
-            </button>
           </div>
 
           <div className="chat-messages">
