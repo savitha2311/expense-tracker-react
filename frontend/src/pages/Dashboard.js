@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { expenseAPI, statsAPI, budgetAPI } from '../services/api';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, LineElement, PointElement } from 'chart.js';
@@ -29,11 +29,7 @@ function Dashboard() {
 
   const categories = ['Food', 'Groceries', 'Transport', 'Coffee', 'Bills', 'Entertainment', 'Shopping', 'Healthcare', 'Other'];
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [expensesRes, statsRes, budgetsRes] = await Promise.all([
         expenseAPI.getAll(),
@@ -48,7 +44,11 @@ function Dashboard() {
         navigate('/');
       }
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
